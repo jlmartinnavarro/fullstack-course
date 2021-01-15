@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 
 import Persons from './Persons'
 import FormPerson from './FormPerson'
 import Filter from './Filter'
 
-const App = () => {
-  const [ persons, setPersons ] = useState([]) 
+import serverComms from './ServerComms'
 
-  const [ newName, setNewName ] = useState('')
-  const [ newNumber, setNewNumber ] = useState('')
-  const [ filter, setNewFilter ] = useState('')
+const App = () => {
+  const [ persons   , setPersons   ] = useState([]) 
+  const [ newName   , setNewName   ] = useState('')
+  const [ newNumber , setNewNumber ] = useState('')
+  const [ filter    , setNewFilter ] = useState('')
   
+
   useEffect(() => {
-    axios.get('http://localhost:3001/persons').then(response => {
-      setPersons(response.data)
-    })
+    serverComms.getAll().then(
+      initialPerson => setPersons(initialPerson)
+    )
   }, [])
 
   const handleNameChange = (event) => {
@@ -35,19 +36,43 @@ const App = () => {
 
   const addPerson = (event) => {    
     event.preventDefault()
-    if (persons.indexOf(newName) !== -1) {
-        alert(`${newName} is already added to phonebook`)
+    let index = persons.findIndex(person => person.name === newName)
+    if (index !== -1) {
+      let confirm = window.confirm("Do you want to update this item?")
+      if (confirm) {
+        serverComms.update(persons[index].id, {...persons[index], number:newNumber})
+        const copyPersons = [...persons]
+        copyPersons[index].number = newNumber
+        setPersons(copyPersons)
+        setNewName('')
+        setNewNumber('')   
+      }
+      
     }
     else {    
         const personObject = {
             name: newName,
             number: newNumber,
-            id: persons.length + 1
+            //id: persons.length + 1
         }
-  
-        setPersons(persons.concat(personObject))
-        setNewName('')
-        setNewNumber('')    
+        serverComms.create(personObject).then(
+          response => {
+            setPersons(persons.concat(response))
+            setNewName('')
+            setNewNumber('')    
+          }
+        )
+    }
+  }
+
+  const deleteHandler = (id) => {
+    return () => {
+      let confirm = window.confirm("Do you want to delete this item?")
+      if (confirm) {
+        serverComms.delet(id)
+        persons.find(person => person.id === id)
+        setPersons(persons.filter(person => person.id !== id))
+      }
     }
   }
 
@@ -64,7 +89,7 @@ const App = () => {
                         handleNumberChange={handleNumberChange}
                         addPerson={addPerson}/>
         <h3>Numbers</h3>
-            <Persons personsToShow={personsToShow} />
+            <Persons personsToShow={personsToShow} deleteHandler={deleteHandler}/>
     </div>
   )
 }

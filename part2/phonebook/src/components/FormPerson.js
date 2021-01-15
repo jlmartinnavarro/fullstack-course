@@ -3,11 +3,11 @@ const FormPerson = ({newName, handleNameChange, newNumber, handleNumberChange, a
     
     <div>
         <form>
-            <label for='name'>name:</label>
+            <label htmlFor='name'>name:</label>
             <input value={newName} 
                 onChange={handleNameChange} id='name'/>
             <br/>
-            <label for='number'>number:</label>
+            <label htmlFor='number'>number:</label>
             <input value={newNumber}
                 onChange={handleNumberChange} id='number' type='tel'/>
             <br/>
