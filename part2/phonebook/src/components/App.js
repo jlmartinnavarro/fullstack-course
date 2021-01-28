@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import Persons from './Persons'
 import FormPerson from './FormPerson'
 import Filter from './Filter'
+import Notification from './Notification'
 
 import serverComms from './ServerComms'
 
@@ -11,7 +12,8 @@ const App = () => {
   const [ newName   , setNewName   ] = useState('')
   const [ newNumber , setNewNumber ] = useState('')
   const [ filter    , setNewFilter ] = useState('')
-  
+  const [notificationMessage, setNotificationMessage] = useState('')
+  const [notificationHTMLClass, setNotificationHTMLClass] = useState('notification')
 
   useEffect(() => {
     serverComms.getAll().then(
@@ -34,6 +36,14 @@ const App = () => {
     setNewFilter(event.target.value)
   }
 
+  const raiseError = (error) => {
+    //console.log(error)
+          setNotificationHTMLClass('error')
+          setNotificationMessage('Error with the action')
+          
+          setTimeout(() => setNotificationMessage(''), 3000)
+
+  }
   const addPerson = (event) => {    
     event.preventDefault()
     let index = persons.findIndex(person => person.name === newName)
@@ -57,11 +67,16 @@ const App = () => {
         }
         serverComms.create(personObject).then(
           response => {
+            setNotificationHTMLClass('notification')
+            setNotificationMessage(`${newName} has been added`)
+            
+            setTimeout(() => setNotificationMessage(''), 3000)
             setPersons(persons.concat(response))
             setNewName('')
             setNewNumber('')    
+            
           }
-        )
+        ).catch(error => raiseError(error))
     }
   }
 
@@ -69,7 +84,7 @@ const App = () => {
     return () => {
       let confirm = window.confirm("Do you want to delete this item?")
       if (confirm) {
-        serverComms.delet(id)
+        serverComms.delet(id, raiseError)
         persons.find(person => person.id === id)
         setPersons(persons.filter(person => person.id !== id))
       }
@@ -82,7 +97,7 @@ const App = () => {
     <div>
         <h2>Phonebook</h2>
             <Filter filter={filter} handleFilterChange={handleFilterChange} />
-        <h2>add a new</h2>
+        <h2>add a new</h2> <Notification message={notificationMessage} classs={notificationHTMLClass}/>
             <FormPerson newName={newName} 
                         handleNameChange={handleNameChange}
                         newNumber={newNumber}
