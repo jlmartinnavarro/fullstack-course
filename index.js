@@ -1,7 +1,7 @@
 const { response, request } = require('express')
 const cors = require('cors')
 const express = require('express')
-const BaseUrl = '/api/notes'
+const baseUrl = '/api/notes'
 let morgan = require('morgan')
 const app = express()
 
