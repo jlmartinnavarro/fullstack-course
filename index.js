@@ -1,7 +1,7 @@
 const { response, request } = require('express')
 const cors = require('cors')
 const express = require('express')
-
+const baseUrl = '/api/notes'
 let morgan = require('morgan')
 const app = express()
 
@@ -9,6 +9,7 @@ app.use(cors())
 app.use(express.json())
 morgan.token('content', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
+app.use(express.static('build'))
 
 let persons = [
   {
