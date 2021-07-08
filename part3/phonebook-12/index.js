@@ -1,36 +1,37 @@
 require('dotenv').config()
-const { response, request } = require('express')
+//const { request, response} = require('express')
 const cors = require('cors')
 const express = require('express')
-const baseUrl = '/api/notes'
+const process = require('process')
+//const baseUrl = '/api/notes'
 let morgan = require('morgan')
 const app = express()
 
 app.use(cors())
 app.use(express.json())
-morgan.token('content', function (req, res) { return JSON.stringify(req.body) })
+morgan.token('content', function (req,) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
 app.use(express.static('build'))
 
 const Person = require('./models/person')
 
-let persons = Person.find({}).then(personsFromDB=> {  
+let persons = Person.find({}).then(personsFromDB => {
   persons = personsFromDB
-  console.log("FIND", persons)
+  console.log('FIND', persons)
 
 })
 
-app.get('/info', (_, response) => {
+app.get('/info', (_, response, next) => {
   Person.find({}).count((error, res) => {
     console.log(res)
     response.send(`Phonebook has info for ${res} people <br/>${new Date().toString()}`)
-  }).catch(error => next(error))  
+  }).catch(error => next(error))
 })
 
 app.get('/api/persons', (_, response) => {
-  console.log("persons", persons)
+  console.log('persons', persons)
   if (!persons) {
-    Person.find({}).then(personsFromDB=> {  
+    Person.find({}).then(personsFromDB => {
       response.json(personsFromDB)
     })
   }
@@ -55,11 +56,11 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
     .then(result => {
-      console.log("result", result)
+      console.log('result', result)
       for (let i = 0; i < persons.length; i++) {
-        
+
         if (persons[i]._id.toString() === result._id.toString()) {
-          console.log("FOUND")
+          console.log('FOUND')
           persons.splice(i, 1)
           break
         }
@@ -70,17 +71,17 @@ app.delete('/api/persons/:id', (request, response, next) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  console.log("BODY", request.body)
+  console.log('BODY', request.body)
   const body = request.body
   const person = {
     name: body.name,
     number: body.number,
   }
-  console.log("update person", person, request.params)
-  Person.findByIdAndUpdate(request.params.id, person, { new: true,  runValidators: true 
-   })
+  console.log('update person', person, request.params)
+  Person.findByIdAndUpdate(request.params.id, person, { new: true,  runValidators: true
+  })
     .then(updatePerson => {
-      console.log("update", updatePerson)
+      console.log('update', updatePerson)
       for (let i = 0; i < persons.length; i++) {
         if (persons[i]._id.toString() === updatePerson._id.toString()) {
           persons[i] = updatePerson
@@ -92,28 +93,28 @@ app.put('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
-  console.log("HEYHEY")
+app.post('/api/persons', (request, response, next) => {
+  console.log('HEYHEY')
   const body = request.body
-  if (!body.name || !body.number) 
-    return response.status(400).json({error : 'Content missing, include both name and number'})
-  
+  if (!body.name || !body.number)
+    return response.status(400).json({ error : 'Content missing, include both name and number' })
+
 
   if (persons.find(person => person.name === body.name))
-    return response.status(400).json({error : 'Name already in phonebook'})
-  
+    return response.status(400).json({ error : 'Name already in phonebook' })
+
   const person = new Person({
     name: body.name,
     number: body.number
   })
-  error = person.validateSync()
-  console.log(error)
+  let aux = person.validateSync()
+  console.log(aux)
   persons = persons.concat(person)
   person.save().then(savedPerson => savedPerson.toJSON()
-  ).then(savedAndFormattedNote => 
+  ).then(savedAndFormattedNote =>
     response.json(savedAndFormattedNote)
   ).catch(error => next(error))
-  
+
 })
 
 
@@ -127,9 +128,9 @@ const unknownEndpoint = (request, response) => {
 }
 
 app.use(unknownEndpoint)
-const errorHandler = (error, request, response, next) => {
-  
-  
+const errorHandler = (error, _, response, next) => {
+
+
   console.error(error.message)
 
   if (error.name === 'CastError') {
