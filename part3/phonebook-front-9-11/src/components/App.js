@@ -37,9 +37,9 @@ const App = () => {
   }
 
   const raiseError = (error) => {
-    //console.log(error)
+  console.log(error)
           setNotificationHTMLClass('error')
-          setNotificationMessage('Error with the action')
+          setNotificationMessage(error.response.data)
           
           setTimeout(() => setNotificationMessage(''), 3000)
 
