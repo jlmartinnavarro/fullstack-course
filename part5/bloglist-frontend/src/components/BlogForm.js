@@ -35,7 +35,7 @@ const blogForm = (handleAddBlog, title, setTitle, author, setAuthor, url, setUrl
           onChange={({ target }) => setLikes(target.value)}
         />
       </div>
-      <button type='submit'>Add</button>
+      <button  id='add-blog' type='submit'>Add</button>
     </form>
   </div>
 )

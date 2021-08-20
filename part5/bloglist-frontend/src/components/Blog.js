@@ -26,11 +26,11 @@ const Blog = ({ blog, updateHandler, deleteHandler }) => {
           <a href={blog.url}>{blog.url}</a>
           <br />
           {blog.likes} likes
-          <button onClick={() => updateHandler(blog)}>Like</button>
+          <button className='update' onClick={() => updateHandler(blog)}>Like</button>
           <br />
           {blog.user.name}
           <br />
-          <button onClick={() => deleteHandler(blog)}>Delete</button>
+          <button className='delete' onClick={() => deleteHandler(blog)}>Delete</button>
         </div>
       </div>
     </div>
