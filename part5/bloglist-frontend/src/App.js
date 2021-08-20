@@ -24,12 +24,12 @@ const App = () => {
   const blogRef = useRef()
   useEffect(() => {
     blogService.getAll().then(blogs => {
-      blogs.sort((a,b)=>b.likes-a.likes)
+      blogs.sort((a,b) => b.likes-a.likes)
       setBlogs( blogs )
     }
-    )  
+    )
   }, [])
-useEffect(() => {
+  useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
@@ -69,9 +69,16 @@ useEffect(() => {
       })
     }
   }
-  const loginForm = LoginForm(handleLogin, username, setUsername, password, setPassword)
-  
-
+  const loginForm = () => (
+    <Toggle buttonLabel="Login">
+      <LoginForm
+        handleLogin={handleLogin}
+        username={username}
+        setUsername={setUsername}
+        password={password}
+        setPassword={setPassword}/>
+    </Toggle>
+  )
   const handleLogout = async () => {
     window.localStorage.removeItem('loggedUser')
     setMessage({
@@ -112,7 +119,18 @@ useEffect(() => {
       {user.name} logged in <button onClick={handleLogout}>Logout</button>
     </div>
   )
-  const blogForm = BlogForm(handleAddBlog, title, setTitle, author, setAuthor, url, setUrl)
+  const blogForm = () => (
+    <Toggle buttonLabel="New blog" ref={blogRef}>
+      <BlogForm
+        handleAddBlog={handleAddBlog}
+        title={title}
+        setTitle={setTitle}
+        author={author}
+        setAuthor={setAuthor}
+        url={url}
+        setUrl={setUrl} />
+    </Toggle>
+  )
   return (
     <div>
       <Notification message={message} />
