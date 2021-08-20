@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, updateHandler, deleteHandler }) => {
   const [visible, setVisible] = useState(false)
@@ -25,14 +26,24 @@ const Blog = ({ blog, updateHandler, deleteHandler }) => {
           <a href={blog.url}>{blog.url}</a>
           <br />
           {blog.likes} likes
-          <button onClick={() => updateHandler(blog)}>like</button>
+          <button onClick={() => updateHandler(blog)}>Like</button>
           <br />
           {blog.user.name}
           <br />
-          <button onClick={() => deleteHandler(blog)}>delete</button>
+          <button onClick={() => deleteHandler(blog)}>Delete</button>
         </div>
       </div>
     </div>
   )
+}
+
+Blog.propTypes = {
+  setUpdate: PropTypes.func,
+  blog: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    likes: PropTypes.string.isRequired,
+  }),
 }
 export default Blog

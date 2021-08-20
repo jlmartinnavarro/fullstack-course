@@ -20,6 +20,8 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [author, setAuthor] = useState('')
+  const [likes, setLikes] = useState('')
+
 
   const blogRef = useRef()
   useEffect(() => {
@@ -66,6 +68,22 @@ const App = () => {
       setMessage({
         text: 'wrong credentials',
         type: 'error'
+      })
+    }
+  }
+  const updateHandler = async (id, likes) => {
+    await blogService.update({
+      id: id,
+      likes: likes + 1,
+    })
+  }
+
+  const deleteHandler = async (blog) => {
+    const result = window.confirm(`Remove ${blog.title} by ${blog.author}`)
+
+    if (result) {
+      await blogService.remove({
+        id: blog.id,
       })
     }
   }
@@ -128,7 +146,9 @@ const App = () => {
         author={author}
         setAuthor={setAuthor}
         url={url}
-        setUrl={setUrl} />
+        setUrl={setUrl}
+        likes={likes}
+        setLikes={setLikes} />
     </Toggle>
   )
   return (
@@ -145,7 +165,9 @@ const App = () => {
           {userInfo()}
           {blogForm()}
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog}
+              updateHandler={updateHandler}
+              deleteHandler={deleteHandler}/>
           )}
         </div>
       )}
