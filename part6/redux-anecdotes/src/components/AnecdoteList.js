@@ -1,26 +1,35 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { voteAnecdote } from '../reducers/anecdoteReducer'
+import { showNotification } from '../reducers/notificationReducer'
 
 const AnecdoteList = () => {
-  const anecdotes = useSelector((state) => state)
+  const anecdotes = useSelector((state) => {
+    const filter = state.filter
+    const anecdotes = state.anecdotes
+    if (filter === '') return anecdotes
+
+    return anecdotes.filter((anecdote) => anecdote.content.indexOf(filter) > 0)
+  })
   const dispatch = useDispatch()
 
-  const vote = (id) => {
-    console.log('vote', id)
-    dispatch(voteAnecdote(id))
+  const vote = (anecdote) => {
+    dispatch(voteAnecdote(anecdote.id))
+    dispatch(showNotification(`Vote: '${anecdote.content}'`))
+    setTimeout(() => {
+      dispatch(showNotification(null))
+    }, 5000)
   }
-
   return (
     <>
       <h2>Anecdotes</h2>
-      {anecdotes.sort((a, b) => (b.votes - a.votes)) &&
+      {anecdotes.sort((a, b) => (a.votes > b.votes ? -1 : 1)) &&
         anecdotes.map((anecdote) => (
           <div key={anecdote.id}>
             <div>{anecdote.content}</div>
             <div>
               Has {anecdote.votes}
-              <button onClick={() => vote(anecdote.id)}>Vote</button>
+              <button onClick={() => vote(anecdote)}>Vote</button>
             </div>
           </div>
         ))}
